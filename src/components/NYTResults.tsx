@@ -1,5 +1,5 @@
-import React, { Component, SyntheticEvent } from "react";
-import { Button, Form, FormGroup, Label, Input, FormText } from "reactstrap";
+import { Component, SyntheticEvent } from "react";
+import { Button, Form, FormGroup, Label, Input } from "reactstrap";
 import NYTDisplay from "./NYTDisplay";
 import { IResult } from "./Interfaces";
 
@@ -21,7 +21,6 @@ export default class NYTResults extends Component<{}, IState> {
       results: [],
       pageNumber: 0,
     };
-    this.handlePage = this.handlePage.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -54,24 +53,7 @@ export default class NYTResults extends Component<{}, IState> {
     this.nytFetch();
   }
 
-  handlePage(event: SyntheticEvent, direction: string) {
-    //Doesn't currently work correctly. State lags.
-    event.preventDefault();
-    if (direction === "down") {
-      if (this.state.pageNumber > 0) {
-        this.setState((prevState: IState) => {
-          return { pageNumber: prevState.pageNumber - 1 };
-        });
-        this.nytFetch();
-      }
-    }
-    if (direction === "up") {
-      this.setState((prevState: IState) => {
-        return { pageNumber: prevState.pageNumber + 1 };
-      });
-      this.nytFetch();
-    }
-  }
+
   //TODO: There are two ways we can write this handleChange. Both do the same. It's just to showcase the casting and pick type.
 
   // handleChange(event: SyntheticEvent): void {
@@ -135,12 +117,13 @@ export default class NYTResults extends Component<{}, IState> {
           </FormGroup>
           <Button type="submit">Search</Button>
         </Form>
-        {this.state.results.length > 0 ? (
-          <NYTDisplay
-            results={this.state.results}
-            handlePage={this.handlePage}
-          />
-        ) : null}
+        <div style={{ display: "flex", flexWrap: "wrap" }}>
+          {this.state.results.length > 0
+            ? this.state.results.map((result: IResult, index: number) => {
+                return <NYTDisplay key={index} result={result}/>;
+              })
+            : null}
+        </div>
       </div>
     );
   }
