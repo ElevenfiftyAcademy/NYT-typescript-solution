@@ -1,7 +1,7 @@
-import { Component, SyntheticEvent } from "react";
+import { ChangeEvent, Component, FormEvent, SyntheticEvent } from "react";
 import { Button, Form, FormGroup, Label, Input } from "reactstrap";
 import NYTDisplay from "./NYTDisplay";
-import { IResult } from "./Interfaces";
+import { IResult, INYTResponse } from "./Interfaces";
 
 interface IState {
   searchTerm: string;
@@ -40,23 +40,24 @@ export default class NYTResults extends Component<{}, IState> {
 
     console.log(url);
 
-    const response = await fetch(url);
-    const data = await response.json();
-    this.setState({
+    const response: Response = await fetch(url);
+    const data: INYTResponse = await response.json();
+    this.setState((prevState: IState) => ({
+      ...prevState,
       results: data.response.docs,
-    });
+    }));
   };
 
-  handleSubmit(event: SyntheticEvent): void {
-    // this.setState({ pageNumber: 0 });
+  handleSubmit(event: FormEvent): void {
     event.preventDefault();
+    this.setState({ pageNumber: 0 });
     this.nytFetch();
   }
 
 
   //TODO: There are two ways we can write this handleChange. Both do the same. It's just to showcase the casting and pick type.
 
-  // handleChange(event: SyntheticEvent): void {
+  // handleChange(event: ChangeEvent): void {
   //   const input = event.target as HTMLInputElement;
   //   console.log(input.name, input.value);
   //   this.setState((prevstate: IState) => {
@@ -69,16 +70,24 @@ export default class NYTResults extends Component<{}, IState> {
   //   });
   // }
 
-  handleChange(event: SyntheticEvent): void {
-    const input = event.target as HTMLInputElement;
-    console.log(input.name, input.value);
-    this.setState(
-      (prevstate: IState) =>
-        ({ ...prevstate, [input.name]: input.value } as Pick<
-          IState, //I pass in a type
-          keyof IState //I want all the keys from this type (these are types)
-        >)
-    );
+  // handleChange(event: ChangeEvent): void {
+  //   const input = event.target as HTMLInputElement;
+  //   console.log(input.name, input.value);
+  //   this.setState(
+  //     (prevstate: IState) =>
+  //       ({ ...prevstate, [input.name]: input.value } as Pick<
+  //         IState, //type
+  //         keyof IState //the keys from this type (these are types)
+  //       >)
+  //   );
+  // }
+
+  handleChange(event: ChangeEvent<HTMLInputElement>): void {
+    const {name, value}  = event.target;
+    this.setState((prevState: IState) => ({
+      ...prevState,
+      [name]: value
+    }))
   }
 
   render() {
@@ -119,8 +128,8 @@ export default class NYTResults extends Component<{}, IState> {
         </Form>
         <div style={{ display: "flex", flexWrap: "wrap" }}>
           {this.state.results.length > 0
-            ? this.state.results.map((result: IResult, index: number) => {
-                return <NYTDisplay key={index} result={result}/>;
+            ? this.state.results.map((result: IResult) => {
+                return <NYTDisplay key={result._id} result={result}/>;
               })
             : null}
         </div>

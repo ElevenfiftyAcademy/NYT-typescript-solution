@@ -17,5 +17,17 @@ interface IHeadline {
 
 interface IMultimedia {
   url: string;
-  
 }
+
+export interface INYTResponse {
+  copyright: string;
+  response: {
+    docs: IResult[];
+    meta: {
+      hits: number;
+      offset: number;
+      time: number;
+    };
+    status: string;
+  };
+};
